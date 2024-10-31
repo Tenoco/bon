@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BON Crypto Wallet</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Sign In/Up Section -->
+    <div id="sign-in-up" class="glass-container">
+        <div class="auth-container">
+            <div class="wallet-logo">
+                <i class="fas fa-wallet"></i>
+                BON WALLET
+            </div>
+            <div class="auth-tabs">
+                <button onclick="showAuthTab('sign-up')" class="active">
+                    <i class="fas fa-plus-circle"></i> CREATE WALLET
+                </button>
+                <button onclick="showAuthTab('sign-in')">
+                    <i class="fas fa-download"></i> RESTORE WALLET
+                </button>
+            </div>
+            
+            <div id="sign-up-form" class="auth-form">
+                <div class="input-group">
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="username" placeholder="ENTER USERNAME">
+                </div>
+                <button onclick="signUp()" class="primary-button">
+                    <i class="fas fa-plus-circle"></i> CREATE NEW WALLET
+                </button>
+            </div>
+            
+            <div id="sign-in-form" class="auth-form" style="display: none;">
+                <div class="input-group">
+                    <i class="fas fa-id-card"></i>
+                    <input type="text" id="userId" placeholder="USER ID">
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-lock"></i>
+                    <textarea id="encryptedData" placeholder="ENCRYPTED WALLET DATA"></textarea>
+                </div>
+                <button onclick="signIn()" class="primary-button">
+                    <i class="fas fa-sign-in-alt"></i> RESTORE WALLET
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App Header -->
+    <header id="app-header" style="display: none;" class="glass-header">
+        <div class="user-info">
+            <i class="fas fa-user-circle"></i>
+            <span id="display-username" class="mono-bold"></span>
+            <span id="display-userId" class="mono-regular"></span>
+        </div>
+        <div class="balance-info">
+            <i class="fas fa-coins"></i>
+            <span class="mono-regular">Balance:</span>
+            <span id="coin-balance" class="mono-bold">0</span>
+            <span class="mono-bold">BERKS</span>
+        </div>
+    </header>
+
+    <!-- Main Content Sections -->
+    <main id="main-content" style="display: none;">
+        <!-- Account Section -->
+<section id="account-section" class="content-section glass-container">
+    <div class="card">
+        <div class="wallet-header">
+            <div class="wallet-balance-display">
+                <div class="total-balance">
+                    <span class="balance-label">Total Balance</span>
+                    <div class="balance-amount">
+                        <i class="fas fa-wallet"></i>
+                        <span id="berk-balance">0</span>
+                        <span>BERKS</span>
+                    </div>
+                </div>
+            </div>
+            <div class="wallet-actions">
+                <button class="action-button">
+                    <i class="fas fa-paper-plane"></i>
+                    Send
+                </button>
+                <button class="action-button">
+                    <i class="fas fa-download"></i>
+                    Receive
+                </button>
+            </div>
+        </div>
+        <div class="wallet-details">
+            <div class="detail-row">
+                <span class="detail-label">
+                    <i class="fas fa-user"></i>
+                    Username
+                </span>
+                <span id="account-username" class="detail-value"></span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">
+                    <i class="fas fa-id-card"></i>
+                    User ID
+                </span>
+                <span id="account-userId" class="detail-value"></span>
+                <button class="copy-button">
+                    <i class="fas fa-copy"></i>
+                </button>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">
+                    <i class="fas fa-lock"></i>
+                    Encrypted Data
+                </span>
+                <button class="copy-button" onclick="copyEncryptedData()">
+                    <i class="fas fa-copy"></i>
+                </button>
+            </div>
+            <textarea id="user-encrypted-data" readonly class="mono-regular"></textarea>
+        </div>
+    </div>
+</section>
+        <!-- Transfer Section -->
+        <section id="transfer-section" class="content-section glass-container" style="display: none;">
+            <div class="card">
+                <h2 class="mono-bold"><i class="fas fa-paper-plane"></i> SEND BERKS</h2>
+                <div class="transfer-form">
+                    <div class="input-group">
+                        <i class="fas fa-user"></i>
+                        <input type="text" id="recipient-name" placeholder="RECIPIENT NAME" class="mono-regular">
+                    </div>
+                    <div class="input-group">
+                        <i class="fas fa-id-card"></i>
+                        <input type="text" id="recipient-id" placeholder="RECIPIENT ID" class="mono-regular">
+                    </div>
+                    <div class="input-group">
+                        <i class="fas fa-coins"></i>
+                        <input type="number" id="transfer-amount" placeholder="AMOUNT" class="mono-regular">
+                    </div>
+                    <button onclick="transferBerks()" class="primary-button">
+                        <i class="fas fa-paper-plane"></i> SEND
+                    </button>
+                </div>
+                <div id="transaction-code-container" style="display: none;">
+                    <h3 class="mono-bold"><i class="fas fa-key"></i> TRANSACTION CODE:</h3>
+                    <textarea id="transaction-code" readonly class="mono-regular"></textarea>
+                    <button onclick="copyTransactionCode()" class="secondary-button">
+                        <i class="fas fa-copy"></i> COPY CODE
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Receive Section -->
+        <section id="receive-section" class="content-section glass-container" style="display: none;">
+            <div class="card">
+                <h2 class="mono-bold"><i class="fas fa-download"></i> RECEIVE BERKS</h2>
+                <div class="receive-form">
+                    <div class="input-group">
+                        <i class="fas fa-key"></i>
+                        <textarea id="receive-code" placeholder="ENTER TRANSACTION CODE" class="mono-regular"></textarea>
+                    </div>
+                    <button onclick="receiveBerks()" class="primary-button">
+                        <i class="fas fa-download"></i> RECEIVE
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Assets Section -->
+        <section id="assets-section" class="content-section glass-container" style="display: none;">
+            <div class="card">
+                <h2 class="mono-bold"><i class="fas fa-chart-pie"></i> ASSETS</h2>
+                <div class="asset-list">
+                    <div class="asset-item">
+                        <i class="fas fa-coins"></i>
+                        <span class="asset-name mono-bold">BERK</span>
+                        <span class="asset-balance mono-bold" id="berk-balance">0</span>
+                        <span class="asset-value mono-regular" id="berk-value">$0.00</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Market Section -->
+        <section id="market-section" class="content-section glass-container" style="display: none;">
+            <div class="card">
+                <h2 class="mono-bold"><i class="fas fa-chart-line"></i> MARKET</h2>
+                <div class="market-list" id="market-rates">
+                    <!-- Market rates will be populated by JavaScript -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Tab Bar -->
+    <div id="tab-bar" class="glass-container" style="display: none;">
+        <button onclick="showSection('account')" class="tab-button active mono-bold">
+            <i class="fas fa-wallet"></i>
+            <span>WALLET</span>
+        </button>
+        <button onclick="showSection('transfer')" class="tab-button mono-bold">
+            <i class="fas fa-paper-plane"></i>
+            <span>SEND</span>
+        </button>
+        <button onclick="showSection('receive')" class="tab-button mono-bold">
+            <i class="fas fa-download"></i>
+            <span>RECEIVE</span>
+        </button>
+        <button onclick="showSection('assets')" class="tab-button mono-bold">
+            <i class="fas fa-chart-pie"></i>
+            <span>ASSETS</span>
+        </button>
+        <button onclick="showSection('market')" class="tab-button mono-bold">
+            <i class="fas fa-chart-line"></i>
+            <span>MARKET</span>
+        </button>
+    </div>
+
+    <!-- Alert Container -->
+    <div id="alert-container"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
