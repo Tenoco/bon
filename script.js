@@ -198,8 +198,21 @@ function updateMarketSection() {
     });
 }
 
+/// Crypto configuration object
+const cryptoConfig = {
+    BERK: {
+        targetPrice: 0.00500,  // Target price for BERK
+        volatility: 0.05,      // 2% volatility
+        priceRange: 0.50       // Allow 20% deviation from target price
+    },
+    // Add other crypto configurations as needed
+};
+
 // Market Simulation
 function startMarketSimulation() {
+    // Initialize crypto rates with configured values
+    initializeCryptoRates();
+    
     // Initial update
     updateMarketPrices();
     
@@ -209,21 +222,45 @@ function startMarketSimulation() {
     }, 1000);
 }
 
+function initializeCryptoRates() {
+    // Initialize BERK with configured target price
+    if (cryptoRates.BERK) {
+        cryptoRates.BERK.current = cryptoConfig.BERK.targetPrice;
+        cryptoRates.BERK.min = cryptoConfig.BERK.targetPrice * (1 - cryptoConfig.BERK.priceRange);
+        cryptoRates.BERK.max = cryptoConfig.BERK.targetPrice * (1 + cryptoConfig.BERK.priceRange);
+        cryptoRates.BERK.previousPrice = cryptoConfig.BERK.targetPrice;
+    }
+}
+
 function updateMarketPrices() {
     Object.keys(cryptoRates).forEach(crypto => {
         const rate = cryptoRates[crypto];
         rate.previousPrice = rate.current;
         
+        // Get crypto-specific volatility or use default
+        const volatility = (crypto === 'BERK') 
+            ? cryptoConfig.BERK.volatility 
+            : 0.02; // Default volatility for other cryptos
+        
         // More dynamic price movement
-        const volatility = 0.02; // 0.2% base volatility
         const randomFactor = (Math.random() - 0.01) * 2; // -1 to 1
         const change = randomFactor * volatility;
         
-        // Calculate new price
-        rate.current = Math.max(
-            rate.min,
-            Math.min(rate.max, rate.current * (0.99 + change))
-        );
+        // For BERK, add mean reversion towards target price
+        if (crypto === 'BERK') {
+            const currentDeviation = (rate.current - cryptoConfig.BERK.targetPrice) / cryptoConfig.BERK.targetPrice;
+            const meanReversionFactor = -currentDeviation * 0.1; // Adjust strength of mean reversion
+            rate.current = Math.max(
+                rate.min,
+                Math.min(rate.max, rate.current * (1 + change + meanReversionFactor))
+            );
+        } else {
+            // Original calculation for other cryptos
+            rate.current = Math.max(
+                rate.min,
+                Math.min(rate.max, rate.current * (0.99 + change))
+            );
+        }
         
         rate.change = ((rate.current - rate.previousPrice) / rate.previousPrice) * 100;
     });
@@ -277,7 +314,6 @@ styleSheet.textContent = `
     }
 `;
 document.head.appendChild(styleSheet);
-
 // Utility Functions
 // Save data function
 function saveUserData() {
