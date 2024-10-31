@@ -1,7 +1,7 @@
 // Global variables
 let username = '';
 let userId = '';
-let coinBalance = 0;
+let coinBalance = 0.00;
 let transactionHistory = [];
 let receivedCodes = [];
 let cryptoRates = {
@@ -109,7 +109,7 @@ function signUp() {
     username = document.getElementById('username').value;
     if (username) {
         userId = generateUserId();
-        coinBalance = 1000; // Starting balance
+        coinBalance = 0.00; // Starting balance
         document.getElementById('display-username').textContent = username;
         document.getElementById('display-userId').textContent = userId;
         document.getElementById('sign-in-up').style.display = 'none';
