@@ -10,7 +10,7 @@ let cryptoRates = {
 
 // Initialize the application
 function init() {
-    const savedData = getCookie('userData');
+    const savedData = getData('userData');
     if (savedData) {
         try {
             const data = JSON.parse(decodeURIComponent(savedData));
@@ -28,7 +28,7 @@ function init() {
 }
 
 function loadSavedData() {
-    const savedData = getCookie('userData');
+    const savedData = getData('userData');
     if (savedData) {
         try {
             const data = JSON.parse(decodeURIComponent(savedData));
@@ -45,7 +45,6 @@ function loadSavedData() {
     }
 }
 
-
 // Authentication Functions
 function showAuthTab(tab) {
     document.getElementById('sign-up-form').style.display = tab === 'sign-up' ? 'flex' : 'none';
@@ -60,7 +59,6 @@ function generateUserId() {
     return 'BON-' + Math.random().toString(36).substr(2, 9).toUpperCase();
 }
 
-// Authentication Functions
 function signIn() {
     const inputUserId = document.getElementById('userId').value;
     const inputEncryptedData = document.getElementById('encryptedData').value;
@@ -104,7 +102,6 @@ function loadUserDataFromDecrypted(data) {
     updateAccountSection();
 }
 
-
 function signUp() {
     username = document.getElementById('username').value;
     if (username) {
@@ -123,19 +120,6 @@ function signUp() {
     } else {
         showAlert('Please enter a username.');
     }
-}
-
-function loadUserDataFromDecrypted(data) {
-    username = data.username;
-    userId = data.userId;
-    coinBalance = data.coinBalance;
-    transactionHistory = data.transactionHistory || [];
-    receivedCodes = data.receivedCodes || [];
-    
-    document.getElementById('display-username').textContent = username;
-    document.getElementById('display-userId').textContent = userId;
-    document.getElementById('coin-balance').textContent = coinBalance;
-    updateAccountSection();
 }
 
 // UI Functions
@@ -180,50 +164,22 @@ function updateAssetsSection() {
     document.getElementById('berk-value').textContent = `$${berkValue}`;
 }
 
-function updateMarketSection() {
-    const marketList = document.getElementById('market-rates');
-    marketList.innerHTML = '';
-    
-    Object.entries(cryptoRates).forEach(([crypto, data]) => {
-        const marketItem = document.createElement('div');
-        marketItem.className = 'market-item';
-        marketItem.innerHTML = `
-            <span class="crypto-name">${crypto}</span>
-            <span class="crypto-price">$${data.current.toFixed(4)}</span>
-            <span class="crypto-change ${data.change > 0 ? 'positive' : 'negative'}">
-                ${data.change > 0 ? '+' : ''}${data.change.toFixed(2)}%
-            </span>
-        `;
-        marketList.appendChild(marketItem);
-    });
-}
-
-/// Crypto configuration object
+// Market Functions
 const cryptoConfig = {
     BERK: {
-        targetPrice: 0.00500,  // Target price for BERK
-        volatility: 0.05,      // 2% volatility
-        priceRange: 0.50       // Allow 20% deviation from target price
-    },
-    // Add other crypto configurations as needed
+        targetPrice: 0.00500,
+        volatility: 0.05,
+        priceRange: 0.50
+    }
 };
 
-// Market Simulation
 function startMarketSimulation() {
-    // Initialize crypto rates with configured values
     initializeCryptoRates();
-    
-    // Initial update
     updateMarketPrices();
-    
-    // Update every second
-    setInterval(() => {
-        updateMarketPrices();
-    }, 1000);
+    setInterval(updateMarketPrices, 1000);
 }
 
 function initializeCryptoRates() {
-    // Initialize BERK with configured target price
     if (cryptoRates.BERK) {
         cryptoRates.BERK.current = cryptoConfig.BERK.targetPrice;
         cryptoRates.BERK.min = cryptoConfig.BERK.targetPrice * (1 - cryptoConfig.BERK.priceRange);
@@ -236,26 +192,18 @@ function updateMarketPrices() {
     Object.keys(cryptoRates).forEach(crypto => {
         const rate = cryptoRates[crypto];
         rate.previousPrice = rate.current;
-        
-        // Get crypto-specific volatility or use default
-        const volatility = (crypto === 'BERK') 
-            ? cryptoConfig.BERK.volatility 
-            : 0.02; // Default volatility for other cryptos
-        
-        // More dynamic price movement
-        const randomFactor = (Math.random() - 0.01) * 2; // -1 to 1
+        const volatility = (crypto === 'BERK') ? cryptoConfig.BERK.volatility : 0.02;
+        const randomFactor = (Math.random() - 0.01) * 2;
         const change = randomFactor * volatility;
         
-        // For BERK, add mean reversion towards target price
         if (crypto === 'BERK') {
             const currentDeviation = (rate.current - cryptoConfig.BERK.targetPrice) / cryptoConfig.BERK.targetPrice;
-            const meanReversionFactor = -currentDeviation * 0.1; // Adjust strength of mean reversion
+            const meanReversionFactor = -currentDeviation * 0.1;
             rate.current = Math.max(
                 rate.min,
                 Math.min(rate.max, rate.current * (1 + change + meanReversionFactor))
             );
         } else {
-            // Original calculation for other cryptos
             rate.current = Math.max(
                 rate.min,
                 Math.min(rate.max, rate.current * (0.99 + change))
@@ -293,29 +241,35 @@ function updateMarketSection() {
     });
 }
 
-// Add CSS styles for market items
-const styleSheet = document.createElement('style');
-styleSheet.textContent = `
-    .market-item {
-        transition: background-color 0.3s ease;
-        padding: 15px;
-        border-radius: 8px;
-        background-color: var(--card-background);
-        margin-bottom: 10px;
+// Storage Functions
+function saveData(name, value) {
+    try {
+        localStorage.setItem(name, value);
+        return true;
+    } catch (e) {
+        console.error('Error saving to localStorage:', e);
+        return false;
     }
-    
-    .crypto-price, .crypto-change {
-        font-weight: bold;
-        transition: color 0.3s ease;
+}
+
+function getData(name) {
+    try {
+        return localStorage.getItem(name);
+    } catch (e) {
+        console.error('Error reading from localStorage:', e);
+        return null;
     }
-    
-    .market-item:hover {
-        background-color: rgba(255, 255, 255, 0.05);
-    }
-`;
-document.head.appendChild(styleSheet);
-// Utility Functions
-// Save data function
+}
+
+// Maintain compatibility with existing cookie function names
+function setCookie(name, value, days) {
+    return saveData(name, value);
+}
+
+function getCookie(name) {
+    return getData(name);
+}
+
 function saveUserData() {
     const userData = {
         username,
@@ -324,9 +278,11 @@ function saveUserData() {
         transactionHistory,
         receivedCodes
     };
-    setCookie('userData', encodeURIComponent(JSON.stringify(userData)), 30);
+    saveData('userData', encodeURIComponent(JSON.stringify(userData)));
     updateAccountSection();
 }
+
+// Utility Functions
 function showAlert(message) {
     const alertContainer = document.getElementById('alert-container');
     const alert = document.createElement('div');
@@ -354,28 +310,12 @@ function copyTransactionCode() {
     showAlert('Transaction code copied to clipboard!');
 }
 
-// Cookie Functions
-// Cookie functions
-function setCookie(name, value, days) {
-    const expires = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toUTCString();
-    document.cookie = `${name}=${value}; expires=${expires}; path=/; SameSite=Strict; Secure`;
-}
-
-function getCookie(name) {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop().split(';').shift();
-    return null;
-}
-
-
 // Transaction Functions
 function transferBerks() {
     const recipientName = document.getElementById('recipient-name').value;
     const recipientId = document.getElementById('recipient-id').value;
     const transferAmount = parseInt(document.getElementById('transfer-amount').value, 10);
 
-    // Validate input fields
     if (!recipientName || !recipientId || isNaN(transferAmount)) {
         showAlert('Please fill in all fields.');
         return;
@@ -396,7 +336,6 @@ function transferBerks() {
         return;
     }
 
-    // Check transaction limit
     const oneHourAgo = Date.now() - (60 * 60 * 1000);
     const recentTransactions = transactionHistory.filter(transaction => transaction.timestamp > oneHourAgo);
     
@@ -405,27 +344,20 @@ function transferBerks() {
         return;
     }
 
-    // Create a transaction code
     const transactionCode = CryptoJS.AES.encrypt(
         JSON.stringify({ recipientId, amount: transferAmount, senderName: username }),
         recipientId
     ).toString();
 
-    // Update coin balance
     coinBalance -= (transferAmount + 50);
     document.getElementById('coin-balance').textContent = coinBalance;
 
-    // Record the transaction with timestamp
     transactionHistory.push({ timestamp: Date.now(), recipientId, amount: transferAmount });
 
-    // Display the transaction code in a box
     document.getElementById('transaction-code').value = transactionCode;
     document.getElementById('transaction-code-container').style.display = 'block';
 
-    // Show success alert
     showAlert(`Transfer successful! You sent ${transferAmount} BERKS to ${recipientName}.`);
-
-    // Save user data after successful transfer
     saveUserData();
 }
 
@@ -437,7 +369,6 @@ function receiveBerks() {
         return;
     }
 
-    // Check if the code has already been used
     if (receivedCodes.includes(receiveCode)) {
         showAlert('This transaction code has already been used.');
         return;
@@ -455,7 +386,6 @@ function receiveBerks() {
         coinBalance += transactionData.amount;
         document.getElementById('coin-balance').textContent = coinBalance;
 
-        // Add the code to the history
         receivedCodes.push(receiveCode);
         saveUserData();
 
@@ -467,6 +397,26 @@ function receiveBerks() {
 }
 
 // Initialize the application when the page loads
-
-// Initialize the application when the page loads
 window.addEventListener('load', init);
+
+// Add CSS styles for market items
+const styleSheet = document.createElement('style');
+styleSheet.textContent = `
+    .market-item {
+        transition: background-color 0.3s ease;
+        padding: 15px;
+        border-radius: 8px;
+        background-color: var(--card-background);
+        margin-bottom: 10px;
+    }
+    
+    .crypto-price, .crypto-change {
+        font-weight: bold;
+        transition: color 0.3s ease;
+    }
+    
+    .market-item:hover {
+        background-color: rgba(255, 255, 255, 0.05);
+    }
+`;
+document.head.appendChild(styleSheet);
