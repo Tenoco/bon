@@ -7,15 +7,7 @@ let receivedCodes = [];
 let cryptoRates = {
     'BERK': { min: 0.5, max: 2.0, current: 1.0 }
 };
-/// Crypto configuration object
-const cryptoConfig = {
-    BERK: {
-        targetPrice: 0.000005,  // Target price for BERK
-        volatility: 0.05,      // 2% volatility
-        priceRange: 0.5      // Allow 20% deviation from target price
-    },
-    // Add other crypto configurations as needed
-};
+
 
 // Initialize the application
 function init() {
@@ -206,6 +198,17 @@ function updateMarketSection() {
         marketList.appendChild(marketItem);
     });
 }
+
+/// Crypto configuration object
+const cryptoConfig = {
+    BERK: {
+        targetPrice: 0.000005,  // Target price for BERK
+        volatility: 0.05,      // 2% volatility
+        priceRange: 0.5      // Allow 20% deviation from target price
+    },
+    // Add other crypto configurations as needed
+};
+
 
 // Market Simulation
 function startMarketSimulation() {
