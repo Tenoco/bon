@@ -1,5 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Doto:wght@100..900&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&display=swap');
 
 :root {
     /* Base Colors */
@@ -55,7 +54,7 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Doto', 'JetBrains Mono', 'Fira Code', 'Menlo', monospace;
+    font-family: 'Pixelify Sans', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
@@ -853,46 +852,91 @@ textarea {
 
 /* Additional styles */
 #app-header {
-    padding: 30px;
-    margin-bottom: 20px;
     display: flex;
-    flex-direction: column;
-    gap: 20px;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    margin-bottom: 10px;
+    background: rgba(16, 16, 16, 0.5);
+    border-radius: var(--radius-md);
+    backdrop-filter: var(--glass-blur);
 }
 
-.balance-info {
+.user-info {
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
     gap: 8px;
+}
+
+.user-info i {
+    font-size: 16px;
+    color: var(--primary-color);
+    background: rgba(0, 179, 119, 0.1);
+    padding: 8px;
+    border-radius: var(--radius-sm);
+}
+
+#display-username {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-color);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+#display-userId {
+    font-size: 11px;
+    color: var(--text-secondary);
+    background: rgba(138, 143, 152, 0.1);
+    padding: 3px 6px;
+    border-radius: var(--radius-sm);
 }
 
 .balance-section {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
 }
 
 .balance-section i {
-    font-size: 24px;
+    font-size: 20px;
     color: var(--primary-color);
-    background: rgba(5, 118, 246, 0.1);
-    padding: 12px;
-    border-radius: 12px;
+    background: rgba(0, 179, 119, 0.1);
+    padding: 8px;
+    border-radius: var(--radius-sm);
 }
 
 #coin-balance {
-    font-size: 32px;
-    font-weight: 700;
-    background: linear-gradient(90deg, #fff, #8e98a2);
+    font-size: 24px;
+    font-weight: 600;
+    background: linear-gradient(90deg, var(--text-color), #8e98a2);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
 .balance-label {
-    font-size: 14px;
-    color: var(--secondary-text);
+    font-size: 12px;
+    color: var(--text-secondary);
     margin-bottom: 4px;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 480px) {
+    #app-header {
+        flex-direction: column;
+        gap: 10px;
+        padding: 12px;
+    }
+
+    .user-info, .balance-section {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    #coin-balance {
+        font-size: 20px;
+    }
 }
 
 .user-info {
