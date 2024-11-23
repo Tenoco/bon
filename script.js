@@ -200,6 +200,8 @@ function updateMarketPrices() {
     updateAssetsSection();
 }
 
+fu// [Previous code remains the same until the updateMarketSection function]
+
 function updateMarketSection() {
     const marketList = document.getElementById('market-rates');
     marketList.innerHTML = '';
@@ -210,10 +212,25 @@ function updateMarketSection() {
         
         const marketItem = document.createElement('div');
         marketItem.className = 'market-item';
+        
+        // Format the price based on its magnitude
+        let formattedPrice;
+        if (crypto === 'BERK') {
+            if (data.current < 0.000001) {
+                // Use scientific notation for very small numbers
+                formattedPrice = data.current.toExponential(8);
+            } else {
+                // Show up to 8 decimal places for small numbers
+                formattedPrice = data.current.toFixed(8);
+            }
+        } else {
+            formattedPrice = data.current.toFixed(2);
+        }
+        
         marketItem.innerHTML = `
             <span class="crypto-name">${crypto}</span>
             <span class="crypto-price" style="color: ${priceColor}">
-                $${data.current.toFixed(crypto === 'BERK' ? 4 : 2)}
+                $${formattedPrice}
             </span>
             <span class="crypto-change" style="color: ${priceColor}">
                 ${priceChange > 0 ? '↑' : priceChange < 0 ? '↓' : ''}
@@ -224,6 +241,7 @@ function updateMarketSection() {
     });
 }
 
+// [Rest of the code remains the same]
 // Transaction Functions
 function transferBerks() {
     const recipientName = document.getElementById('recipient-name').value;
