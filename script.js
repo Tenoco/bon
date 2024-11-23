@@ -200,7 +200,7 @@ function updateMarketPrices() {
     updateAssetsSection();
 }
 
-fu// [Previous code remains the same until the updateMarketSection function]
+// [Previous code remains the same until the updateMarketSection function]
 
 function updateMarketSection() {
     const marketList = document.getElementById('market-rates');
